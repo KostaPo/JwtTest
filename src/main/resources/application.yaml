@@ -33,9 +33,10 @@ spring:
     cache: false
 jwt:
   secret: vz53iy67d9aib705edaxi2cgy3o839y3kostapo
-  lifetime: 1m
+  lifetime: 5m
 
 logging:
   level:
-    root: INFO  # Уровень логирования по умолчанию для всех логгеров
-    org.springframework.security: DEBUG  # Уровень логирования для Spring Security
+    root: INFO
+    #org.springframework.security: DEBUG
+    #org.thymeleaf: DEBUG
