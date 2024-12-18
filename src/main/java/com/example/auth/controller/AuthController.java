@@ -1,8 +1,8 @@
 package com.example.auth.controller;
 
 import com.example.auth.entity.dto.FaultResponse;
-import com.example.auth.entity.dto.JwtRequest;
-import com.example.auth.entity.dto.JwtResponse;
+import com.example.auth.entity.dto.AuthRequest;
+import com.example.auth.entity.dto.AuthResponse;
 import com.example.auth.service.JwtService;
 import com.example.auth.service.UserDetailsSecurityService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping
-    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
+    public ResponseEntity<?> createAuthToken(@RequestBody AuthRequest authRequest) {
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
@@ -37,7 +37,12 @@ public class AuthController {
             );
         }
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
-        String token = jwtService.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtResponse(token));
+        String accessToken = jwtService.generateAccessToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
+        return ResponseEntity.ok(AuthResponse.builder()
+                                                .accessToken(accessToken)
+                                                .refreshToken(refreshToken)
+                                                .build()
+        );
     }
 }

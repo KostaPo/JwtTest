@@ -23,10 +23,21 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.lifetime}")
-    private Duration jwtLifetime;
+    @Value("${jwt.access-token}")
+    private Duration accessTokenLifeTime;
 
-    public String generateToken(UserDetails userDetails) {
+    @Value("${jwt.refresh-token}")
+    private Duration refreshTokenLifeTime;
+
+    public String generateAccessToken(UserDetails userDetails) {
+        return generateToken(userDetails, accessTokenLifeTime);
+    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        return generateToken(userDetails, refreshTokenLifeTime);
+    }
+
+    private String generateToken(UserDetails userDetails, Duration tokenLifetime) {
         Map<String, Object> claims = new HashMap<>();
         List<String> rolesList = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -34,7 +45,7 @@ public class JwtService {
         claims.put("roles", rolesList);
 
         Date issuedDate = new Date();
-        Date expiredDate = new Date(issuedDate.getTime() + jwtLifetime.toMillis());
+        Date expiredDate = new Date(issuedDate.getTime() + tokenLifetime.toMillis());
 
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
@@ -55,8 +66,8 @@ public class JwtService {
         return getClaimFromToken(token, "roles", List.class);
     }
 
-    public Date getExpiration(String token) {
-        return getClaimFromToken(token, "exp", Date.class);
+    public boolean isExpired(String token) {
+        return getClaimFromToken(token, "exp", Date.class).before(new Date());
     }
 
     private Claims getAllClaimsFromToken(String token) {

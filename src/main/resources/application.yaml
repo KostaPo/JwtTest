@@ -16,8 +16,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: true           # Создает базовую версию при миграции
-    validate-on-migrate: true           # Проверяет целостность миграций перед выполнением
+    baseline-on-migrate: true
+    validate-on-migrate: true
   jpa:
     show-sql: true
     open-in-view: false
@@ -26,17 +26,12 @@ spring:
       ddl-auto: validate
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-  thymeleaf:
-    check-template-location: true
-    prefix: classpath:/templates/
-    suffix: .html
-    cache: false
 jwt:
   secret: vz53iy67d9aib705edaxi2cgy3o839y3kostapo
-  lifetime: 5m
+  access-token: 10m
+  refresh-token: 100m
 
 logging:
   level:
     root: INFO
     #org.springframework.security: DEBUG
-    #org.thymeleaf: DEBUG

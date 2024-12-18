@@ -27,7 +27,7 @@ values
        ('ROLE_USER'),
        ('ROLE_ADMIN');
 
-insert into users (username, password)
+insert into users (username, password) -- пароль цифра '100'
 values ('user', '$2a$04$Fx/SX9.BAvtPlMyIIqqFx.hLY2Xp8nnhpzvEEVINvVpwIPbA3v/.i'),
        ('admin', '$2a$04$Fx/SX9.BAvtPlMyIIqqFx.hLY2Xp8nnhpzvEEVINvVpwIPbA3v/.i');
 

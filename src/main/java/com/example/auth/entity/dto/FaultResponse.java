@@ -1,7 +1,6 @@
 package com.example.auth.entity.dto;
 
 import lombok.Data;
-import org.springframework.http.HttpStatusCode;
 
 import java.util.Date;
 
