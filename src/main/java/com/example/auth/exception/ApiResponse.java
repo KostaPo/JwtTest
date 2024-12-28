@@ -1,16 +1,16 @@
-package com.example.auth.entity.dto;
+package com.example.auth.exception;
 
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class FaultResponse {
+public class ApiResponse {
     private Integer status;
     private String message;
     private Date timestamp;
 
-    public FaultResponse(Integer status, String message) {
+    public ApiResponse(Integer status, String message) {
         this.status = status;
         this.message = message;
         this.timestamp = new Date();

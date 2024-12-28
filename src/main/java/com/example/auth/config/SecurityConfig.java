@@ -1,7 +1,7 @@
 package com.example.auth.config;
 
 import com.example.auth.service.JwtService;
-import com.example.auth.service.UserDetailsSecurityService;
+import com.example.auth.service.UserSecService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final UserDetailsSecurityService userDetailsSecurityService;
+    private final UserSecService userSecService;
     private final JwtService jwtService;
 
     @Bean
@@ -61,7 +61,7 @@ public class SecurityConfig {
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        daoAuthenticationProvider.setUserDetailsService(userDetailsSecurityService);
+        daoAuthenticationProvider.setUserDetailsService(userSecService);
         return daoAuthenticationProvider;
     }
 

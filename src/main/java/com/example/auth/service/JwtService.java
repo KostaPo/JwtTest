@@ -23,21 +23,7 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.access-token}")
-    private Duration accessTokenLifeTime;
-
-    @Value("${jwt.refresh-token}")
-    private Duration refreshTokenLifeTime;
-
-    public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(userDetails, accessTokenLifeTime);
-    }
-
-    public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(userDetails, refreshTokenLifeTime);
-    }
-
-    private String generateToken(UserDetails userDetails, Duration tokenLifetime) {
+    public String generateToken(UserDetails userDetails, Duration tokenLifetime) {
         Map<String, Object> claims = new HashMap<>();
         List<String> rolesList = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
