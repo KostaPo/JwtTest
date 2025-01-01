@@ -1,8 +1,10 @@
 package com.example.auth.config;
 
+import com.example.auth.exception.ApiResponse;
 import com.example.auth.service.JwtService;
 import com.example.auth.service.UserSecService;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -80,6 +83,7 @@ public class SecurityConfig {
         return new OncePerRequestFilter() {
             @Override
             protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+                ObjectMapper objectMapper = new ObjectMapper();
                 String authHeader = request.getHeader("Authorization");
                 String username = null;
                 String jwt = null;
@@ -88,8 +92,36 @@ public class SecurityConfig {
                     jwt = authHeader.substring(7);
                     try {
                         username = jwtService.getUsername(jwt);
-                    } catch (ExpiredJwtException e) {
-                        System.out.println("Время жизни токена истекло");
+                    } catch (MalformedJwtException ex) {
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        response.setContentType("application/json");
+                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Invalid JWT token!");
+                        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+                        return;
+                    } catch (ExpiredJwtException ex) {
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        response.setContentType("application/json");
+                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Expired JWT token!");
+                        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+                        return;
+                    } catch (UnsupportedJwtException ex) {
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        response.setContentType("application/json");
+                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Unsupported JWT token!");
+                        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+                        return;
+                    } catch (IllegalArgumentException ex) {
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        response.setContentType("application/json");
+                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "JWT claims string is empty!");
+                        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+                        return;
+                    } catch (SignatureException e) {
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        response.setContentType("application/json");
+                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Error with token signature!");
+                        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+                        return;
                     }
                 }
 

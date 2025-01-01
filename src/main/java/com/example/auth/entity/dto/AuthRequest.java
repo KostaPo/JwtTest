@@ -1,5 +1,6 @@
 package com.example.auth.entity.dto;
 
+import com.example.auth.exception.valid.ValidXMPP;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,7 @@ public class AuthRequest {
     @Size(min = 6, max = 32, message = "Password must be between 6 and 32 characters long!")
     private String password;
 
+    @ValidXMPP(message = "Bad Jabber address!")
     @NotBlank(message = "Jabber is required: example@jabber.com")
     private String jabber;
 
