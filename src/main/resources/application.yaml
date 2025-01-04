@@ -12,6 +12,7 @@ spring:
         connection-timeout: 30000
         max-lifetime: 1800000
         auto-commit: true
+        transaction-isolation: TRANSACTION_READ_COMMITTED
         connection-test-query: SELECT 1
   flyway:
     enabled: true

@@ -4,6 +4,7 @@ import com.example.auth.entity.Role;
 import com.example.auth.entity.User;
 import com.example.auth.entity.UserRole;
 import com.example.auth.entity.dto.AuthRequest;
+import com.example.auth.entity.dto.RegistrationRequest;
 import com.example.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +21,10 @@ public class AppUserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public void save(AuthRequest authRequest) {
+    public void save(RegistrationRequest registrationRequest) {
         User user = new User();
-        user.setUsername(authRequest.getUsername());
-        user.setPassword(passwordEncoder.encode(authRequest.getPassword()));
-        user.setJabber(authRequest.getJabber());
+        user.setUsername(registrationRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
         user.setRoles(List.of(Role.builder().name(UserRole.ROLE_USER.name()).build()));
         userRepository.save(user);
     }

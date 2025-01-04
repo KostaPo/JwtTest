@@ -26,9 +26,6 @@ public class User {
     @NotBlank
     private String password;
 
-    @NotBlank
-    private String jabber;
-
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "users_roles",

@@ -3,7 +3,6 @@ create table users
     id       bigserial,
     username varchar(30) not null unique,
     password varchar(80) not null,
-    jabber varchar(80) not null,
     primary key (id)
 );
 
@@ -26,9 +25,9 @@ CREATE TABLE users_roles
 insert into roles (name)
 values ('ROLE_USER'), ('ROLE_SELLER'), ('ROLE_MODER'), ('ROLE_ADMIN');
 
-insert into users (username, password, jabber)
-values ('user2025', '$2a$10$OcuToltJZk5qEnomJ8n.Nu2lmAIYxlOumt52OZ0Q2.WIVOkLduz0C', 'user@user.ru'),
-       ('Administrator', '$2a$10$kcFepNBcTE6m/zqiAyf7PO6X8iXE2f3KlmbKGzz7x.bnhs14CsrlK', 'admin@admin.ru');
+insert into users (username, password)
+values ('user2025', '$2a$10$OcuToltJZk5qEnomJ8n.Nu2lmAIYxlOumt52OZ0Q2.WIVOkLduz0C'),
+       ('Administrator', '$2a$10$kcFepNBcTE6m/zqiAyf7PO6X8iXE2f3KlmbKGzz7x.bnhs14CsrlK');
 
 insert into users_roles (user_id, role_id)
 values (1, 1),

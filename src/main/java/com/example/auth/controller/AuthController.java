@@ -2,13 +2,18 @@ package com.example.auth.controller;
 
 import com.example.auth.entity.dto.AuthRequest;
 import com.example.auth.entity.dto.AuthResponse;
+import com.example.auth.entity.dto.RegistrationRequest;
 import com.example.auth.exception.ApiResponse;
 import com.example.auth.exception.NonUniqConstraintException;
 import com.example.auth.service.AppUserService;
 import com.example.auth.service.JwtService;
 import com.example.auth.service.UserSecService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -24,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.Duration;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping({"api/v2/auth"})
@@ -45,7 +51,9 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest,
+                                                HttpServletRequest request,
+                                                HttpServletResponse response) {
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -58,23 +66,36 @@ public class AuthController {
                     HttpStatus.UNAUTHORIZED
             );
         }
+
         UserDetails userDetails = userSecService.loadUserByUsername(authRequest.getUsername());
+
+        Duration refreshDuration = authRequest.getRememberMe() != null ? rememberMeLifeTime : refreshTokenLifeTime;
+
         String accessToken = jwtService.generateToken(userDetails, accessTokenLifeTime);
-        String refreshToken = jwtService.generateToken(userDetails, authRequest.getRememberMe() != null
-                                                                    ? rememberMeLifeTime
-                                                                    : refreshTokenLifeTime);
+        String refreshToken = jwtService.generateToken(userDetails, refreshDuration);
+
+        Cookie cookie = new Cookie("refresh_token", refreshToken);
+        cookie.setHttpOnly(true);
+        if (request.isSecure()) {
+            cookie.setSecure(true);
+        }
+        cookie.setPath("/");
+        cookie.setMaxAge(refreshDuration.getNano());
+
+        response.addCookie(cookie);
+
         return ResponseEntity.ok(AuthResponse.builder()
-                                            .accessToken(accessToken)
-                                            .refreshToken(refreshToken)
-                                            .build()
+                .accessToken(accessToken)
+                .build()
         );
     }
 
 
     @PostMapping("/registration")
-    public ResponseEntity<?> registration(@Valid @RequestBody AuthRequest authRequest) {
+    public ResponseEntity<?> registration(@Valid @RequestBody RegistrationRequest registrationRequest) {
         try {
-            appUserService.save(authRequest);
+            log.info("registration request: " + registrationRequest);
+            appUserService.save(registrationRequest);
         } catch (DataIntegrityViolationException e) {
             throw new NonUniqConstraintException("This username already exist!");
         }
