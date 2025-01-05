@@ -9,7 +9,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -38,6 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -54,9 +57,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/secured").authenticated()
                         .requestMatchers("/info").authenticated()
-                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 );
 
@@ -139,9 +141,11 @@ public class SecurityConfig {
                 }
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
                     List<GrantedAuthority> authorities = (List<GrantedAuthority>) jwtService.getRoles(jwt).stream()
                             .map(role -> new SimpleGrantedAuthority(role.toString()))
                             .collect(Collectors.toList());
+                    log.info("Username: {} JWT: {} Authorities: {}", username, jwt, authorities);
 
                     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                             username,

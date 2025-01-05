@@ -52,7 +52,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest,
-                                                HttpServletRequest request,
                                                 HttpServletResponse response) {
 
         try {
@@ -76,11 +75,8 @@ public class AuthController {
 
         Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setHttpOnly(true);
-        if (request.isSecure()) {
-            cookie.setSecure(true);
-        }
         cookie.setPath("/");
-        cookie.setMaxAge(refreshDuration.getNano());
+        cookie.setMaxAge(60 * 60 * 24);
 
         response.addCookie(cookie);
 

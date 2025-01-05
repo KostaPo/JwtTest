@@ -23,4 +23,11 @@ public class GlobalExceptionHandler {
         log.info("NonValidConstraintException: " + ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleNonUniqConstraintException(UserNotFoundException ex) {
+        ApiResponse response = new ApiResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        log.info("UserNotFoundException: " + ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
 }

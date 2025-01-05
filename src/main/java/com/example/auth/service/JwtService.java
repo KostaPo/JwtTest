@@ -2,6 +2,7 @@ package com.example.auth.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class JwtService {
 
@@ -34,6 +36,7 @@ public class JwtService {
 
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
+        log.info("token for user [{}] success generated with [{}sec] lifetime", userDetails.getUsername(), tokenLifetime.getSeconds());
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
