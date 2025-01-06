@@ -23,6 +23,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,10 +81,7 @@ public class AuthController {
 
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(AuthResponse.builder()
-                .accessToken(accessToken)
-                .build()
-        );
+        return ResponseEntity.ok(new AuthResponse(accessToken));
     }
 
 
@@ -97,5 +95,17 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(new ApiResponse(HttpStatus.CREATED.value(), "User registered successfully!"));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken) {
+        if(!jwtService.isExpired(refreshToken)) {
+            String username = jwtService.getUsername(refreshToken);
+            UserDetails userDetails = userSecService.loadUserByUsername(username);
+            String newAccessToken = jwtService.generateToken(userDetails, accessTokenLifeTime);
+            log.info("user [{}] get newAccessToken", username);
+            return ResponseEntity.ok(new AuthResponse(newAccessToken));
+        }
+        return ResponseEntity.ok("refresh");
     }
 }
