@@ -5,6 +5,7 @@ import com.example.auth.service.JwtService;
 import com.example.auth.service.UserSecService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -108,48 +110,33 @@ public class SecurityConfig {
                 }
 
                 ObjectMapper objectMapper = new ObjectMapper();
-                String authHeader = request.getHeader("Authorization");
-                String username = null;
-                String jwt = null;
+                String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+                String username;
+                String jwt;
 
                 if (authHeader != null && authHeader.startsWith("Bearer ")) {
                     jwt = authHeader.substring(7);
                     try {
                         username = jwtService.getUsername(jwt);
-                    } catch (MalformedJwtException ex) {
+                    } catch (JwtException ex) {
                         response.setStatus(HttpStatus.UNAUTHORIZED.value());
                         response.setContentType("application/json");
-                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Invalid JWT token!");
-                        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-                        return;
-                    } catch (ExpiredJwtException ex) {
-                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                        response.setContentType("application/json");
-                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Expired JWT token!");
-                        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-                        return;
-                    } catch (UnsupportedJwtException ex) {
-                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                        response.setContentType("application/json");
-                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Unsupported JWT token!");
-                        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-                        return;
-                    } catch (IllegalArgumentException ex) {
-                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                        response.setContentType("application/json");
-                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "JWT claims string is empty!");
+                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
                         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
                         return;
                     }
+                } else {
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    response.setContentType("application/json");
+                    ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "NO TOKEN DATA!");
+                    response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+                    return;
                 }
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
                     List<GrantedAuthority> authorities = (List<GrantedAuthority>) jwtService.getRoles(jwt).stream()
                             .map(role -> new SimpleGrantedAuthority(role.toString()))
                             .collect(Collectors.toList());
-                    log.info("Username: {} JWT: {} Authorities: {}", username, jwt, authorities);
-
                     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                             username,
                             null,
@@ -157,7 +144,6 @@ public class SecurityConfig {
                     );
                     SecurityContextHolder.getContext().setAuthentication(token);
                 }
-
                 filterChain.doFilter(request, response);
             }
         };

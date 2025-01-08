@@ -58,6 +58,10 @@ public class JwtService {
         return getClaimFromToken(token, "exp", Date.class).before(new Date());
     }
 
+    public Date getExpirationDate(String token) {
+        return getClaimFromToken(token, "exp", Date.class);
+    }
+
     private Claims getAllClaimsFromToken(String token) {
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 

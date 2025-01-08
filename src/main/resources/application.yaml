@@ -30,7 +30,7 @@ spring:
 jwt:
   secret: vz53iy67d9aib705edaxi2cgy3o839y3kostapo
   access-token-ttl: 1m
-  refresh-token-ttl: 15m
+  refresh-token-ttl: 3m
   remember-me-ttl: 1d
 
 

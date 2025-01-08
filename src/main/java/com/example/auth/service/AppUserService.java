@@ -24,11 +24,9 @@ public class AppUserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     public User findByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(
+        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(
                 String.format("User '%s' not found", username)
         ));
-
-        return user;
     }
 
     public void save(RegistrationRequest registrationRequest) {
