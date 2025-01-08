@@ -1,0 +1,27 @@
+services:
+
+  database:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_pass
+      POSTGRES_DB: "CommonData"
+    restart: unless-stopped
+
+  java-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: java-app
+    ports:
+      - "8080:8080/tcp"
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://database:5432/CommonData"
+      SPRING_DATASOURCE_USERNAME: dev_user
+      SPRING_DATASOURCE_PASSWORD: dev_pass
+    restart: unless-stopped
+    depends_on:
+      - database
