@@ -3,6 +3,7 @@ package com.example.auth.service;
 import com.example.auth.entity.RefreshToken;
 import com.example.auth.exception.TokenNotFoundException;
 import com.example.auth.repository.RefreshTokenRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,5 +45,9 @@ public class RefreshTokenService {
         return passwordEncoder.matches(sourceToken, encryptedToken);
     }
 
+    @Transactional
+    public void removeRefreshTokenByUsername(String username) {
+        tokenRepository.deleteByUsername(username);
+    }
 
 }

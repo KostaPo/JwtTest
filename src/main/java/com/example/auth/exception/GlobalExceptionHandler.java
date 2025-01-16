@@ -19,21 +19,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NonUniqConstraintException.class)
     public ResponseEntity<ApiResponse> handleNonUniqConstraintException(NonUniqConstraintException ex) {
-        ApiResponse response = new ApiResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
+        ApiResponse response = new ApiResponse(ex.getMessage());
         log.info("NonValidConstraintException: " + ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponse> handleUserNotFoundException(UserNotFoundException ex) {
-        ApiResponse response = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+        ApiResponse response = new ApiResponse(ex.getMessage());
         log.info("UserNotFoundException: " + ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(TokenNotFoundException.class)
     public ResponseEntity<ApiResponse> handleTokenNotFoundException(TokenNotFoundException ex) {
-        ApiResponse response = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+        ApiResponse response = new ApiResponse(ex.getMessage());
         log.info("TokenNotFoundException: " + ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }

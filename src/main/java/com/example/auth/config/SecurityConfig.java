@@ -4,10 +4,7 @@ import com.example.auth.exception.ApiResponse;
 import com.example.auth.service.JwtService;
 import com.example.auth.service.UserSecService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,6 +45,7 @@ import java.util.stream.Collectors;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
     private final UserSecService userSecService;
     private final JwtService jwtService;
 
@@ -59,13 +57,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/api/v2/auth/**").permitAll()
                         .requestMatchers("/info").authenticated()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN"))
+                .logout((logout) -> logout
+                        .logoutUrl("/api/v2/auth/logout")
+                        .logoutSuccessHandler(customLogoutSuccessHandler)
+                        .permitAll()
                 );
 
         http.addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -121,14 +124,14 @@ public class SecurityConfig {
                     } catch (JwtException ex) {
                         response.setStatus(HttpStatus.UNAUTHORIZED.value());
                         response.setContentType("application/json");
-                        ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+                        ApiResponse apiResponse = new ApiResponse(ex.getMessage());
                         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
                         return;
                     }
                 } else {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType("application/json");
-                    ApiResponse apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "NO TOKEN DATA!");
+                    ApiResponse apiResponse = new ApiResponse("NO TOKEN DATA!");
                     response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
                     return;
                 }

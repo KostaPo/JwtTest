@@ -65,10 +65,7 @@ public class AuthController {
                     authRequest.getPassword())
             );
         } catch (BadCredentialsException ex) {
-            return new ResponseEntity<>(
-                    new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Bad login or password!"),
-                    HttpStatus.UNAUTHORIZED
-            );
+            return new ResponseEntity<>(new ApiResponse("Bad login or password!"), HttpStatus.UNAUTHORIZED);
         }
 
         UserDetails userDetails = userSecService.loadUserByUsername(authRequest.getUsername());
@@ -100,12 +97,11 @@ public class AuthController {
             throw new NonUniqConstraintException("This username already exist!");
         }
 
-        return ResponseEntity.ok(new ApiResponse(HttpStatus.CREATED.value(), "User registered successfully!"));
+        return ResponseEntity.ok(new ApiResponse("User registered successfully!"));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken,
-                                     HttpServletResponse response) {
+    public ResponseEntity<?> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken) {
         log.info("TOKEN REFRESH REQUEST");
         if(refreshToken != null) {
             try{
@@ -118,12 +114,12 @@ public class AuthController {
                     return ResponseEntity.ok(new AuthResponse(newAccessToken));
                 } else {
                     log.info("token verification failed!");
-                    return ResponseEntity.ok(new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Bad refresh token"));
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bad refresh token");
                 }
             } catch (JwtException ex) {
-                return ResponseEntity.ok(new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Bad refresh token"));
+                return ResponseEntity.ok(new ApiResponse("Bad refresh token"));
             }
         }
-        return ResponseEntity.ok(new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "Refresh token is NULL!"));
+        return ResponseEntity.ok(new ApiResponse("Refresh token is NULL!"));
     }
 }

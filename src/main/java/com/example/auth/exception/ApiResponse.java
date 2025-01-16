@@ -6,12 +6,10 @@ import java.util.Date;
 
 @Data
 public class ApiResponse {
-    private Integer status;
     private String message;
     private Date timestamp;
 
-    public ApiResponse(Integer status, String message) {
-        this.status = status;
+    public ApiResponse(String message) {
         this.message = message;
         this.timestamp = new Date();
     }
