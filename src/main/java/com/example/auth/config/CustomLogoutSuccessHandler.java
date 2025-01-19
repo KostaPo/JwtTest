@@ -1,12 +1,12 @@
 package com.example.auth.config;
 
 import com.example.auth.exception.TokenNotFoundException;
-import com.example.auth.exception.UserNotFoundException;
 import com.example.auth.service.JwtService;
 import com.example.auth.service.RefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 
@@ -37,6 +38,8 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
                 .filter(cookie -> "refresh_token".equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst();
+
+        log.info("token for remove {}", token);
 
         String rToken = token.orElseThrow(() -> new TokenNotFoundException("refresh token not found"));
         String username = jwtService.getUsername(rToken);

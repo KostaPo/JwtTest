@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.security.Principal;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -28,8 +29,9 @@ public class MainController {
     }
 
     @GetMapping("/admin")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> adminData() {
-        return ResponseEntity.ok("admin hello! ");
+    public ResponseEntity<?> adminData(Principal principal) {
+        log.info("user [{}] get ADMIN info", principal.getName());
+        List<User> userList = userService.findAll();
+        return ResponseEntity.ok(userList);
     }
 }

@@ -29,6 +29,10 @@ public class AppUserService {
         ));
     }
 
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
     public void save(RegistrationRequest registrationRequest) {
         User user = new User();
         user.setUsername(registrationRequest.getUsername());

@@ -65,7 +65,7 @@ public class AuthController {
                     authRequest.getPassword())
             );
         } catch (BadCredentialsException ex) {
-            return new ResponseEntity<>(new ApiResponse("Bad login or password!"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new ApiResponse("Bad login or password!"), HttpStatus.BAD_REQUEST);
         }
 
         UserDetails userDetails = userSecService.loadUserByUsername(authRequest.getUsername());
@@ -117,9 +117,11 @@ public class AuthController {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bad refresh token");
                 }
             } catch (JwtException ex) {
+                log.info("bad refresh token");
                 return ResponseEntity.ok(new ApiResponse("Bad refresh token"));
             }
         }
+        log.info("refresh token is null");
         return ResponseEntity.ok(new ApiResponse("Refresh token is NULL!"));
     }
 }
