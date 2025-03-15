@@ -3,6 +3,8 @@ package com.example.auth.config;
 import com.example.auth.exception.TokenNotFoundException;
 import com.example.auth.service.JwtService;
 import com.example.auth.service.RefreshTokenService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,10 +41,23 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
                 .map(Cookie::getValue)
                 .findFirst();
 
-        log.info("token for remove {}", token);
+        String rToken = token.orElseThrow(() -> new TokenNotFoundException("Refresh token not found"));
+        String username;
 
-        String rToken = token.orElseThrow(() -> new TokenNotFoundException("refresh token not found"));
-        String username = jwtService.getUsername(rToken);
+        try {
+            username = jwtService.getUsername(rToken);
+        } catch (ExpiredJwtException e) {
+            username = e.getClaims().getSubject();
+            log.warn("Expired JWT token for user [{}] during logout", username);
+        } catch (JwtException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
+            throw new TokenNotFoundException("Invalid token");
+        }
+
+        if (username == null || username.trim().isEmpty()) {
+            throw new TokenNotFoundException("Username not found in token");
+        }
+
         tokenService.removeRefreshTokenByUsername(username);
 
         Cookie cookie = new Cookie("refresh_token", null);
@@ -52,5 +67,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write("Logout successful");
+
+        log.info("User [{}] logged out", username);
     }
 }

@@ -11,7 +11,6 @@ import com.example.auth.service.RefreshTokenService;
 import com.example.auth.service.UserSecService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -84,7 +82,7 @@ public class AuthController {
 
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(new AuthResponse(accessToken));
+        return ResponseEntity.ok(new AuthResponse(accessToken, authRequest.getUsername()));
     }
 
 
@@ -111,17 +109,17 @@ public class AuthController {
                     UserDetails userDetails = userSecService.loadUserByUsername(username);
                     String newAccessToken = jwtService.generateToken(userDetails, accessTokenLifeTime);
                     log.info("user [{}] get new access token", username);
-                    return ResponseEntity.ok(new AuthResponse(newAccessToken));
+                    return ResponseEntity.ok(new AuthResponse(newAccessToken, username));
                 } else {
-                    log.info("token verification failed!");
+                    log.info("user [{}] provided wrong refresh token", username);
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bad refresh token");
                 }
             } catch (JwtException ex) {
-                log.info("bad refresh token");
-                return ResponseEntity.ok(new ApiResponse("Bad refresh token"));
+                log.info("user provided expired refresh token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bad refresh token");
             }
         }
-        log.info("refresh token is null");
-        return ResponseEntity.ok(new ApiResponse("Refresh token is NULL!"));
+        log.info("user provided expired refresh token");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bad refresh token");
     }
 }

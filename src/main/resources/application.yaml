@@ -38,3 +38,5 @@ logging:
   level:
     root: INFO
     #org.springframework.security: DEBUG
+    #com.zaxxer.hikari: DEBUG
+    #org.hibernate: DEBUG

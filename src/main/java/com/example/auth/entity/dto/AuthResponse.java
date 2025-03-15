@@ -15,4 +15,6 @@ public class AuthResponse {
     @JsonProperty("access_token")
     private String accessToken;
 
+    @JsonProperty("username")
+    private String userName;
 }

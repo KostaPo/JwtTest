@@ -30,7 +30,7 @@ public class AppUserService {
     }
 
     public List<User> findAll() {
-        return userRepository.findAll();
+        return userRepository.findAllWithRoles();
     }
 
     public void save(RegistrationRequest registrationRequest) {
