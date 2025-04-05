@@ -1,15 +1,12 @@
-package com.example.auth.service;
+package com.example.auth.user;
 
-import com.example.auth.entity.Role;
-import com.example.auth.entity.User;
-import com.example.auth.entity.UserRole;
-import com.example.auth.entity.dto.AuthRequest;
-import com.example.auth.entity.dto.RegistrationRequest;
+import com.example.auth.user.entity.Role;
+import com.example.auth.user.entity.User;
+import com.example.auth.user.entity.UserRole;
+import com.example.auth.user.entity.dto.RegistrationRequest;
 import com.example.auth.exception.UserNotFoundException;
-import com.example.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

@@ -6,9 +6,29 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: dev_user
-      POSTGRES_PASSWORD: dev_pass
       POSTGRES_DB: "CommonData"
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d CommonData -U usr" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: ${SPRING_REDIS_PASSWORD}
+    command: redis-server --requirepass ${SPRING_REDIS_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli -a ${SPRING_REDIS_PASSWORD} ping | grep PONG" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
 
   java-app:
@@ -20,8 +40,14 @@ services:
       - "8080:8080/tcp"
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://database:5432/CommonData"
-      SPRING_DATASOURCE_USERNAME: dev_user
-      SPRING_DATASOURCE_PASSWORD: dev_pass
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      REDIS_SERVICE_HOST: "redis"
+      REDIS_SERVICE_PORT: ${REDIS_SERVICE_PORT}
+      SPRING_REDIS_PASSWORD: ${SPRING_REDIS_PASSWORD}
     restart: unless-stopped
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy

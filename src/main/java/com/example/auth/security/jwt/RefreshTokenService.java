@@ -1,8 +1,7 @@
-package com.example.auth.service;
+package com.example.auth.security.jwt;
 
-import com.example.auth.entity.RefreshToken;
+import com.example.auth.security.entity.RefreshToken;
 import com.example.auth.exception.TokenNotFoundException;
-import com.example.auth.repository.RefreshTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

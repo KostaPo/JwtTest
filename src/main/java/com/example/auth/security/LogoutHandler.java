@@ -1,8 +1,8 @@
-package com.example.auth.config;
+package com.example.auth.security;
 
 import com.example.auth.exception.TokenNotFoundException;
-import com.example.auth.service.JwtService;
-import com.example.auth.service.RefreshTokenService;
+import com.example.auth.security.jwt.JwtService;
+import com.example.auth.security.jwt.RefreshTokenService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,12 +19,12 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
+public class LogoutHandler implements org.springframework.security.web.authentication.logout.LogoutSuccessHandler {
 
     private final JwtService jwtService;
     private final RefreshTokenService tokenService;
 
-    public CustomLogoutSuccessHandler(@Lazy RefreshTokenService tokenService, JwtService jwtService) {
+    public LogoutHandler(@Lazy RefreshTokenService tokenService, JwtService jwtService) {
         this.tokenService = tokenService;
         this.jwtService = jwtService;
     }

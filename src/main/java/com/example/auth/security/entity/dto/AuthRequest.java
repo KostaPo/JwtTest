@@ -1,4 +1,4 @@
-package com.example.auth.entity.dto;
+package com.example.auth.security.entity.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
-package com.example.auth.repository;
+package com.example.auth.security.jwt;
 
-import com.example.auth.entity.RefreshToken;
+import com.example.auth.security.entity.RefreshToken;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;

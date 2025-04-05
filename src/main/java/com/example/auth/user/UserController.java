@@ -1,11 +1,9 @@
-package com.example.auth.controller;
+package com.example.auth.user;
 
-import com.example.auth.entity.User;
-import com.example.auth.service.AppUserService;
+import com.example.auth.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +15,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping({"", "/"})
-public class MainController {
+public class UserController {
 
     private final AppUserService userService;
 

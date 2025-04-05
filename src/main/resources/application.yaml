@@ -1,8 +1,18 @@
+server:
+  port: ${PORT:8080}
 spring:
+  config:
+    import: optional:file:.env[.properties]
+  data:
+    redis:
+      host: ${REDIS_SERVICE_HOST:localhost}
+      port: ${REDIS_SERVICE_PORT}
+      password: ${SPRING_REDIS_PASSWORD}
+      connect-timeout: 500ms
   datasource:
-    url: jdbc:postgresql://localhost:5432/CommonData
-    username: dev_user
-    password: dev_pass
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/CommonData}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -33,6 +43,9 @@ jwt:
   refresh-token-ttl: 3m
   remember-me-ttl: 1d
 
+rate-limit:
+  capacity: 10
+  duration: 1 #minute
 
 logging:
   level:

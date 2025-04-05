@@ -1,7 +1,6 @@
-package com.example.auth.repository;
+package com.example.auth.user;
 
-import com.example.auth.entity.User;
-import org.springframework.data.jpa.repository.EntityGraph;
+import com.example.auth.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

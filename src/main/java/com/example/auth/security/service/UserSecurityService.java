@@ -1,7 +1,7 @@
-package com.example.auth.service;
+package com.example.auth.security.service;
 
-import com.example.auth.entity.User;
-import com.example.auth.repository.UserRepository;
+import com.example.auth.user.entity.User;
+import com.example.auth.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserSecService implements UserDetailsService {
+public class UserSecurityService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
