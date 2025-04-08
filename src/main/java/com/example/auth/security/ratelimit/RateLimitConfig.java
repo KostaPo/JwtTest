@@ -39,7 +39,7 @@ public class RateLimitConfig {
     }
 
     @Bean
-    public JedisBasedProxyManager proxyManager(JedisPool jedisPool) {
+    public JedisBasedProxyManager<byte[]> proxyManager(JedisPool jedisPool) {
         return JedisBasedProxyManager.builderFor(jedisPool)
                 .withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofMinutes(durationMinutes)))
                 .build();

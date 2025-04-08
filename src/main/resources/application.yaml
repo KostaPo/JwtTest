@@ -44,8 +44,10 @@ jwt:
   remember-me-ttl: 1d
 
 rate-limit:
-  capacity: 10
-  duration: 1 #minute
+  duration: 1
+  capacity:
+    main: 10
+    options: 50
 
 logging:
   level:

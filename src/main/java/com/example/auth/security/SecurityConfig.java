@@ -38,7 +38,7 @@ public class SecurityConfig {
 
     private final LogoutHandler logoutHandler;
     private final UserSecurityService userSecurityService;
-    private final JedisBasedProxyManager proxyManager;
+    private final JedisBasedProxyManager<byte[]> jedisBasedProxyManager;
     private final JwtService jwtService;
 
     @Bean
@@ -69,20 +69,11 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(List.of(
-                HttpMethod.GET.name(),
-                HttpMethod.POST.name(),
-                HttpMethod.PATCH.name(),
-                HttpMethod.DELETE.name(),
-                HttpMethod.OPTIONS.name()));
-        configuration.setAllowedHeaders(List.of(
-                HttpHeaders.AUTHORIZATION,
-                HttpHeaders.CONTENT_TYPE,
-                HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setExposedHeaders(List.of("Access-Control-Allow-Origin"));
         configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(List.of(
-                HttpHeaders.AUTHORIZATION));
-
+        configuration.setMaxAge(86400L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -113,6 +104,6 @@ public class SecurityConfig {
 
     @Bean
     public RateLimitFilter rateLimitFilter() {
-        return new RateLimitFilter(proxyManager);
+        return new RateLimitFilter(jedisBasedProxyManager);
     }
 }

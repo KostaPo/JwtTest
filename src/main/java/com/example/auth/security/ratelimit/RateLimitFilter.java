@@ -27,10 +27,13 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class RateLimitFilter extends OncePerRequestFilter {
 
-    private final JedisBasedProxyManager proxyManager;
+    private final JedisBasedProxyManager<byte[]> jedisBasedProxyManager;
 
-    @Value("${rate-limit.capacity}")
-    private int capacity;
+    @Value("${rate-limit.capacity.main}")
+    private int mainCapacity;
+
+    @Value("${rate-limit.capacity.options}")
+    private int optionsCapacity;
 
     @Value("${rate-limit.duration}")
     private int durationMinutes;
@@ -43,31 +46,42 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        String key = String.format("%s:%s:%s", request.getRemoteAddr(), request.getMethod(), request.getRequestURI());
+        String method = request.getMethod().toUpperCase();
+        String path = request.getRequestURI();
+        String clientIp = request.getRemoteAddr();
+
+        String key = String.format("%s:%s:%s", clientIp, method, path);
         byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
 
-        // 1. Создаем конфигурацию лимита
+        int capacity = "OPTIONS".equals(method) ? optionsCapacity : mainCapacity;
+
         Bandwidth limit = Bandwidth.builder()
                 .capacity(capacity)
                 .refillIntervally(capacity, Duration.ofMinutes(durationMinutes))
                 .build();
 
-        // 2. Собираем конфигурацию bucket
         BucketConfiguration bucketConfig = BucketConfiguration.builder()
                 .addLimit(limit)
                 .build();
 
-        // 3. Получаем bucket
-        Bucket bucket = proxyManager.builder().build(keyBytes, bucketConfig);
+        Bucket bucket = jedisBasedProxyManager.builder().build(keyBytes, bucketConfig);
 
-        // 4. Проверяем лимит
         if (bucket.tryConsume(1)) {
             filterChain.doFilter(request, response);
         } else {
+            addCorsHeaders(response);
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType("application/json");
             ApiResponse apiResponse = new ApiResponse("RATE LIMIT EXCEED!");
             response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
         }
+    }
+
+    private void addCorsHeaders(HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+        response.setHeader("Access-Control-Max-Age", "600");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
     }
 }
